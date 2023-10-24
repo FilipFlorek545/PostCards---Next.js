@@ -34,20 +34,26 @@ let postEntries = [
     },
 ]
 
-app.get('/fetch-data', (req, res) => {
+app.get('/posts', (req, res) => {
     const responseData = {
         message: 'Posts fetched successfully!',
         data: postEntries,
     };
-
+    res.json(responseData);
+});
+app.get('/posts/post/:postId', (req, res) => {
+    const postId = req.params.postId
+    const post = postEntries.find(entry => entry.id === +postId);
+    const responseData = {
+        message: 'Post fetched successfully!',
+        data: post,
+    };
     res.json(responseData);
 });
 
-app.post('/add-data', (req, res) => {
+app.post('/add-post', (req, res) => {
     const newPost = req.body.post;
-    const newId = postEntries.length;
-
-    postEntries.push({ id: newId, ...newPost });
+    postEntries.push(newPost);
     const responseData = {
         message: 'Post added successfully!',
         data: postEntries,
@@ -55,10 +61,10 @@ app.post('/add-data', (req, res) => {
     res.json(responseData);
 });
 
-app.patch('/delete-data', (req, res) => {
-    const deletable = req.body;
+app.patch('/delete-post/:postId', (req, res) => {
+    const postId = req.params.postId;
     postEntries = postEntries.filter(entry => {
-        return entry.id !== deletable.id
+        return entry.id !== +postId
     });
     const responseData = {
         //create print responseData function
@@ -68,10 +74,11 @@ app.patch('/delete-data', (req, res) => {
     res.json(responseData)
 })
 
-app.patch('/update-data', (req, res) => {
-    const newVal = req.body
-    postEntries.splice(newVal.id, 1, newVal)
-
+app.patch('/update-post/:postId', (req, res) => {
+    const newVal = req.params.postId
+    const tarEl = postEntries.find(el => el.id === +newVal)
+    let tarPos = postEntries.indexOf(tarEl)
+    postEntries.splice(tarPos, 1, req.body)
     const responseData = {
         message: 'Post updated successfully!',
         data: postEntries
